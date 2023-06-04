@@ -16,6 +16,9 @@ func main() {
 
 	conn, err := database.StartConnection(cfg.Database)
 
+	if err != nil {
+		panic(err)
+	}
 	repository := repositories.NewRepository(conn)
 
 	// random book for testing
