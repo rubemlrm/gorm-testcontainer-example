@@ -14,12 +14,11 @@ For this project was used the following technologies:
 
 # Implementation
 
-For this implementation is possible to separate into three parts:
+For this implementation is possible to separate into several parts:
 - How to handle migrations
-- How to handle testcontainers
-- Example of integration test using TestSuites
+- Preparing the environment for testing
 
-## Migrations
+## How to handle migrations
 
 For the migrations we can create and apply migrations using on the following options:
 
@@ -55,7 +54,7 @@ start to grow, could be troublesome to take track of every struct that was used 
 
 ### Goose way
 
-Since Goose is an agnostic migration tool, it's possible to with several languages. It's also possible to create new migrations in plain sql or using go code. The team that devoleped Goose
+Since Goose is an agnostic migration tool, it's possible to be used with several project stacks. It's also possible to create new migrations in plain sql or using go code. The team that devoleped Goose
 offer a way to run migrations inside the application, like the AutoMigrate but for this case are called [Embedded sql migrations](https://github.com/pressly/goose#embedded-sql-migrations).
 
 Based on their example from documentation, it's possible to use this with the `go:embed` feature of golang that allows us to include additional files in compilation time, but this feature have 
@@ -102,11 +101,46 @@ func RunMigrations(dsn string) error {
 
 This way it is possible to organize the project migrations structure in several ways, without losing the possibility to run the embed migrations. 
 
-### Implementation
+**Implementation**
 
 For this implementation was used the *Goose way*, since it's possible to integrate this way with other ORM's, it's possible to have version for our migrations,
 goose itself manages the migrations what already run, this is more important for application in prod than integration testing, since the container will be recreated and deleted by request.
 
+## Preparing the environment for testing
+
+To prepare the testing environment will be necessary the following aspects:
+* Testcontainer that will run a database
+* Testsuite implementation using [testify](https://pkg.go.dev/github.com/stretchr/testify/)
+* Setup two database connection objects
+  * sql connection that will be used to run migrations in tests
+  * gorm connection that will handle all the operations against database
+
+## Testcontainer that will run our database
+
+The container that will run the testing database, will be initatiate at the `setup` step of this testing and be removed on the tear down step.
+Would be possible to run per single test, but this would be more resource and time intensive for the tests. 
+
+## Testsuite implementation
+
+The test suite will run only the general setup and tear down steps for this proof of concept. It's possible to setup before/after tests too 
+and for some situations can make sense to have that for dropping all migrations and run all migrations again to ensure the cleanest playground for 
+each test.
+
+## Setup two database connection objects
+
+Since this project uses two tools to handle database operations, one for migrations and another one for data handling. It's necessary to 
+set up two different connections, since both tools are waiting for a different kind of object to initiate the connection. For instance:
+
+```golang
+
+// goose
+var sqlMigrations *sql.DB
+sqlMigrations, err := sql.Open("postgres", dsn)
+// gorm
+db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Error)})
+
+
+```
 
 
 # References

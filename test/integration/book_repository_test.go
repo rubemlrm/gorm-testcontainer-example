@@ -60,6 +60,6 @@ func (s *BookRepositoryTestSuite) TearDownSuite() {
 	s.Require().NoError(s.testcontainer.Terminate(ctx))
 }
 
-func TestExampleTestSuite(t *testing.T) {
+func TestBookRepositoryTestSuite(t *testing.T) {
 	suite.Run(t, new(BookRepositoryTestSuite))
 }
