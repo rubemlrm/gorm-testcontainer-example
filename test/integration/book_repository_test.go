@@ -2,18 +2,19 @@ package integration
 
 import (
 	"context"
+	"gorm-test/internal/models"
+	"gorm-test/internal/repositories"
+	"testing"
+	"time"
+
 	"github.com/go-faker/faker/v4"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"gorm-test/internal/models"
-	"gorm-test/internal/repositories"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"testing"
-	"time"
 )
 
 type BookRepositoryTestSuite struct {
@@ -39,7 +40,7 @@ func (s *BookRepositoryTestSuite) SetupSuite() {
 
 }
 
-func (s *BookRepositoryTestSuite) TesWriteAndReadWithSuccess() {
+func (s *BookRepositoryTestSuite) TestWriteAndReadWithSuccess() {
 
 	fakerData := models.Book{}
 	err := faker.FakeData(&fakerData)
